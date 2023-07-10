@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  sd:
+    build: .
+    volumes:
+    - ./checkpoints:/app/checkpoints
+    - ./cache:/root/.cache
+    - ./outputs:/app/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      python scripts/txt2img.py
+        --ckpt checkpoints/v2-1_512-ema-pruned.ckpt
+        --config configs/stable-diffusion/v2-inference.yaml
+        --H 512 --W 512
+        --device cuda --precision autocast --f  16
+        --n_samples 2 --n_rows 2 --n_iter 2
+        --prompt "${PROMPT-a gorilla and a duck fighting over a banana}"
+
